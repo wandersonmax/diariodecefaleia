@@ -2,195 +2,355 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cadastro de Enxaqueca</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1824">
+<title>Diário de Enxaqueca</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/recursive-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Enxaqueca">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+  // Aplica o tema salvo antes de desenhar a página, para não piscar claro.
+  try { if (localStorage.getItem("cadastro_enxaqueca_tema") === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (e) {}
+</script>
 <style>
-  :root {
-    --bg: #f7f6f3; --card: #ffffff; --text: #1f1f1f; --muted: #6b6b6b;
-    --accent: #3b6e8f; --border: #d9d6cf; --danger: #b33a3a;
+  @font-face {
+    font-family: "Recursive";
+    src: url("fonts/recursive-latin.woff2") format("woff2");
+    font-weight: 300 1000; font-style: oblique 0deg 15deg; font-display: swap;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #1b1c1e; --card: #26282b; --text: #ebebeb; --muted: #9a9a9a;
-      --accent: #7fb3d1; --border: #3a3d41; --danger: #e07a7a;
+
+  /* Quarto escuro: o padrão, pensado para quem está sensível à luz */
+  :root {
+    color-scheme: dark;
+    --noite: #1a1824; --cortina: #232030; --linha: #3a3548;
+    --texto: #e4dccf; --apagado: #9c93a6;
+    --lume: #e0a458; --sobre-lume: #1a1824;
+    --alivio: #8fb5a3; --perigo: #d9776a;
+    --frio: #7c8cb0; --morno: #c9a06a; --quente: #d9654f;
+  }
+  /* Luz acesa: claro, mas sem branco estourado */
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --noite: #e9e6ee; --cortina: #f6f4f8; --linha: #cfc9d8;
+    --texto: #241f2e; --apagado: #625a6e;
+    --lume: #8f5516; --sobre-lume: #ffffff;
+    --alivio: #4f7d68; --perigo: #a63c30;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--noite); color: var(--texto);
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+             max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    font-family: "Recursive", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-variation-settings: "CASL" 0, "MONO" 0;
+    font-size: 16px; line-height: 1.45;
+    -webkit-tap-highlight-color: transparent;
+  }
+  main { max-width: 600px; margin: 0 auto; }
+
+  .topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 2px; }
+  h1 {
+    font-size: 1.35rem; font-weight: 800; margin: 0; letter-spacing: -0.01em;
+    font-variation-settings: "CASL" 1, "MONO" 0;
+  }
+  p.sub { color: var(--apagado); margin: 0 0 20px; font-size: 0.9rem; }
+  .luz {
+    background: transparent; color: var(--apagado); border: 1px solid var(--linha);
+    font-size: 14px; font-weight: 500; padding: 8px 14px; min-height: 40px; border-radius: 999px;
+  }
+
+  /* Rótulos de grupo e dados em monoespaçada */
+  .eyebrow, h2 {
+    display: block; margin: 0 0 4px; font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--apagado);
+    font-variation-settings: "CASL" 0, "MONO" 1;
+  }
+  .mono { font-variation-settings: "CASL" 0, "MONO" 1; }
+
+  /* A escala de dor: a peça principal */
+  .dor {
+    position: relative; isolation: isolate; padding: 18px 16px 8px; margin: 0 -16px 8px;
+    --cor: var(--morno); --brilho: transparent;
+  }
+  .dor::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(ellipse 55% 65% at 22% 45%, var(--brilho), transparent 100%);
+    transition: background 0.4s ease;
+  }
+  .escala { display: flex; align-items: flex-end; gap: 14px; margin: 6px 0 4px; }
+  .numeral {
+    font-size: clamp(5.5rem, 30vw, 8rem); line-height: 0.82; font-weight: 900;
+    font-variation-settings: "CASL" 1, "MONO" 0; font-variant-numeric: tabular-nums;
+    color: var(--cor); min-width: 1.15ch; transition: color 0.3s ease;
+  }
+  :root[data-theme="light"] .numeral { color: color-mix(in srgb, var(--cor) 72%, var(--texto)); }
+  .escala-palavra {
+    display: block; font-size: 1.5rem; font-weight: 700; line-height: 1.1;
+    font-variation-settings: "CASL" 1, "MONO" 0;
+  }
+  .escala-de { display: block; color: var(--apagado); font-size: 0.85rem; margin-bottom: 6px; }
+  .regua-pontas {
+    display: flex; justify-content: space-between; color: var(--apagado);
+    font-size: 0.75rem; font-variation-settings: "CASL" 0, "MONO" 1;
+  }
+
+  .regua {
+    -webkit-appearance: none; appearance: none; display: block;
+    width: 100%; height: 44px; margin: 0; padding: 0; border: 0;
+    background: transparent; touch-action: pan-y; cursor: pointer;
+    --trilho: linear-gradient(90deg, var(--frio), var(--morno), var(--quente));
+  }
+  .regua.alivio { --cor: var(--alivio); --trilho: linear-gradient(90deg, var(--linha), var(--alivio)); }
+  .regua::-webkit-slider-runnable-track { height: 10px; border-radius: 999px; background: var(--trilho); }
+  .regua::-moz-range-track { height: 10px; border-radius: 999px; background: var(--trilho); }
+  .regua::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 32px; height: 32px; margin-top: -11px;
+    border-radius: 50%; background: var(--cor); border: 3px solid var(--texto);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--cor) 25%, transparent);
+  }
+  .regua::-moz-range-thumb {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--cor);
+    border: 3px solid var(--texto); box-shadow: 0 0 0 6px color-mix(in srgb, var(--cor) 25%, transparent);
+  }
+
+  /* Grupos do formulário */
+  .grupo { border-top: 1px solid var(--linha); padding: 20px 0 4px; margin-top: 16px; }
+  label { display: block; font-weight: 600; margin: 14px 0 6px; font-size: 0.95rem; }
+  .grupo > h2 + label, .grupo > h2 + .row label { margin-top: 10px; }
+  input, select, textarea {
+    width: 100%; min-height: 44px; padding: 10px 12px; margin: 0;
+    font: inherit; font-size: 16px; color: var(--texto);
+    background: var(--cortina); border: 1px solid var(--linha); border-radius: 10px;
+  }
+  input::placeholder, textarea::placeholder { color: var(--apagado); opacity: 1; }
+  :focus-visible { outline: 2px solid var(--lume); outline-offset: 2px; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 0; border-color: var(--lume); }
+  /* iOS Safari: campos de data/hora vazios ficam sem altura e estouram a largura */
+  input[type="date"], input[type="time"] {
+    -webkit-appearance: none; appearance: none; display: block; min-width: 0;
+  }
+  input::-webkit-date-and-time-value { text-align: left; min-height: 1.45em; }
+  textarea { min-height: 80px; resize: vertical; }
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+
+  .checks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+  .checks label {
+    font-weight: 500; margin: 0; display: flex; align-items: center; gap: 8px;
+    min-height: 44px; padding: 8px 14px; border: 1px solid var(--linha);
+    border-radius: 999px; background: var(--cortina); cursor: pointer; user-select: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .checks label:has(input:checked) { border-color: var(--lume); color: var(--lume); }
+  .checks label:has(input:focus-visible) { outline: 2px solid var(--lume); outline-offset: 2px; }
+  .checks input { width: 20px; height: 20px; min-height: 0; margin: 0; accent-color: var(--lume); }
+  .checks input:focus-visible { outline: none; }
+
+  .alivio-wrap { display: flex; align-items: center; gap: 12px; }
+  .alivio-wrap .regua { flex: 1; }
+  .alivio-num {
+    min-width: 4.6em; text-align: right; font-size: 0.9rem; color: var(--apagado);
+    font-variation-settings: "CASL" 0, "MONO" 1;
+  }
+  .alivio-num output { color: var(--texto); font-weight: 700; font-size: 1.15rem; }
+
+  button {
+    font: inherit; font-size: 16px; font-weight: 700; min-height: 44px; padding: 12px 18px;
+    border-radius: 10px; border: none; background: var(--lume); color: var(--sobre-lume); cursor: pointer;
+  }
+  button.secondary { background: transparent; color: var(--lume); border: 1px solid var(--lume); font-weight: 600; }
+  button.danger {
+    background: transparent; color: var(--perigo); border: 1px solid currentColor;
+    padding: 6px 12px; font-size: 14px; font-weight: 500; min-height: 40px; flex-shrink: 0;
+  }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .msg { color: var(--lume); font-size: 0.9rem; min-height: 1.3em; margin-top: 12px; }
+
+  /* Registros salvos */
+  .card {
+    background: var(--cortina); border: 1px solid var(--linha);
+    border-radius: 14px; padding: 16px; margin: 32px 0 16px;
+  }
+  .card > h2 { margin-bottom: 12px; }
+  .entry { display: flex; gap: 12px; border-top: 1px solid var(--linha); padding: 14px 0; }
+  .entry:first-child { border-top: none; padding-top: 0; }
+  .selo {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center; color: #1a1824;
+    font-size: 1.35rem; font-weight: 900; font-variation-settings: "CASL" 1, "MONO" 0;
+  }
+  .entry-corpo { flex: 1; min-width: 0; }
+  .entry-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .entry-head strong { font-weight: 600; padding-top: 2px; }
+  .entry-meta { color: var(--apagado); font-size: 0.9rem; margin-top: 3px; overflow-wrap: anywhere; }
+  .empty { color: var(--apagado); margin: 0; }
+
+  @media (max-width: 480px) {
+    .row { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .actions button { flex: 1 1 100%; }
+    #form .actions { flex-wrap: nowrap; }
+    #form .actions button { flex: 0 0 auto; }
+    #form .actions button[type="submit"] { flex: 1 1 auto; }
+    /* Botão de salvar sempre ao alcance do polegar */
+    #form .actions {
+      position: sticky; bottom: 0; z-index: 2;
+      margin: 16px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      background: var(--noite); border-top: 1px solid var(--linha);
     }
   }
-  :root[data-theme="dark"] {
-    --bg: #1b1c1e; --card: #26282b; --text: #ebebeb; --muted: #9a9a9a;
-    --accent: #7fb3d1; --border: #3a3d41; --danger: #e07a7a;
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before { transition: none !important; }
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; padding: 16px; background: var(--bg); color: var(--text);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 16px; line-height: 1.4;
-  }
-  main { max-width: 640px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 8px 0 4px; }
-  p.sub { color: var(--muted); margin: 0 0 16px; font-size: 0.9rem; }
-  .card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px; margin-bottom: 16px;
-  }
-  h2 { font-size: 1.05rem; margin: 0 0 12px; }
-  label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: 0.95rem; }
-  input, select, textarea {
-    width: 100%; padding: 10px; font-size: 16px; font-family: inherit;
-    color: var(--text); background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-  textarea { min-height: 64px; resize: vertical; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .checks { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 4px; }
-  .checks label { font-weight: 400; margin: 0; display: flex; align-items: center; gap: 6px; }
-  .checks input { width: auto; }
-  .range-wrap { display: flex; align-items: center; gap: 10px; }
-  .range-wrap input { padding: 0; }
-  .range-val { min-width: 2ch; text-align: center; font-weight: 700; font-size: 1.1rem; }
-  button {
-    font-size: 16px; padding: 12px 16px; border-radius: 8px; border: none;
-    background: var(--accent); color: #fff; cursor: pointer; font-weight: 600;
-  }
-  button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-  button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 6px 10px; font-size: 14px; }
-  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-  .entry { border-top: 1px solid var(--border); padding: 12px 0; }
-  .entry:first-child { border-top: none; padding-top: 0; }
-  .entry-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .entry-meta { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
-  .empty { color: var(--muted); font-style: italic; }
-  .msg { color: var(--accent); font-size: 0.9rem; min-height: 1.2em; margin-top: 8px; }
-  @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>Cadastro de crise de enxaqueca</h1>
-  <p class="sub">Preencha logo após a crise ou no fim do dia. Os dados ficam salvos neste navegador.</p>
+  <header class="topo">
+    <h1>Diário de enxaqueca</h1>
+    <button type="button" class="luz" id="luz" aria-pressed="false">Acender luz</button>
+  </header>
+  <p class="sub">Os registros ficam salvos só neste aparelho.</p>
 
-  <form id="form" class="card" autocomplete="off">
-    <h2>Crise</h2>
-
-    <div class="row">
-      <div>
-        <label for="data">Data</label>
-        <input type="date" id="data" required>
-      </div>
-      <div>
-        <label for="inicio">Horário de início</label>
-        <input type="time" id="inicio" required>
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label for="fim">Horário de fim (se já terminou)</label>
-        <input type="time" id="fim">
-      </div>
-      <div>
-        <label for="aura">Teve aura?</label>
-        <select id="aura">
-          <option value="N">Não</option>
-          <option value="S">Sim</option>
-        </select>
-      </div>
-    </div>
-
-    <label for="intensidade">Intensidade da dor (0 a 10)</label>
-    <div class="range-wrap">
-      <input type="range" id="intensidade" min="0" max="10" value="5">
-      <span class="range-val" id="intensidadeVal">5</span>
-    </div>
-
-    <label for="localizacao">Onde doeu</label>
-    <select id="localizacao">
-      <option>Lado direito</option>
-      <option>Lado esquerdo</option>
-      <option>Os dois lados</option>
-      <option>Testa</option>
-      <option>Nuca</option>
-      <option>Cabeça toda</option>
-    </select>
-
-    <label>Sintomas</label>
-    <div class="checks">
-      <label><input type="checkbox" name="sintoma" value="Náusea/vômito"> Náusea/vômito</label>
-      <label><input type="checkbox" name="sintoma" value="Sensibilidade à luz"> Luz</label>
-      <label><input type="checkbox" name="sintoma" value="Sensibilidade a som"> Som</label>
-      <label><input type="checkbox" name="sintoma" value="Sensibilidade a cheiros"> Cheiros</label>
-      <label><input type="checkbox" name="sintoma" value="Tontura"> Tontura</label>
-    </div>
-
-    <h2 style="margin-top:20px">Remédio</h2>
-    <div class="row">
-      <div>
-        <label for="remedio">Remédio</label>
-        <input type="text" id="remedio" placeholder="Ex.: ibuprofeno">
-      </div>
-      <div>
-        <label for="dose">Dose</label>
-        <input type="text" id="dose" placeholder="Ex.: 400 mg">
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label for="horaRemedio">Horário que tomou</label>
-        <input type="time" id="horaRemedio">
-      </div>
-      <div>
-        <label for="alivio">Alívio (0 a 10)</label>
-        <div class="range-wrap">
-          <input type="range" id="alivio" min="0" max="10" value="0">
-          <span class="range-val" id="alivioVal">0</span>
+  <form id="form" autocomplete="off">
+    <section class="dor" id="dor">
+      <label for="intensidade" class="eyebrow">Intensidade da dor</label>
+      <div class="escala" aria-hidden="true">
+        <output class="numeral" id="intensidadeVal" for="intensidade">5</output>
+        <div>
+          <span class="escala-palavra" id="intensidadePalavra">Moderada</span>
+          <span class="escala-de">de 10</span>
         </div>
       </div>
-    </div>
+      <input type="range" class="regua" id="intensidade" min="0" max="10" value="5">
+      <div class="regua-pontas" aria-hidden="true"><span>Sem dor</span><span>A pior possível</span></div>
+    </section>
 
-    <h2 style="margin-top:20px">Fatores do dia</h2>
-    <div class="row">
-      <div>
-        <label for="sono">Horas de sono na noite anterior</label>
-        <input type="number" id="sono" min="0" max="24" step="0.5">
+    <section class="grupo">
+      <h2>Quando</h2>
+      <div class="row">
+        <div>
+          <label for="data">Data</label>
+          <input type="date" id="data" required>
+        </div>
+        <div>
+          <label for="inicio">Começou às</label>
+          <input type="time" id="inicio" required>
+        </div>
       </div>
-      <div>
-        <label for="agua">Copos de água no dia</label>
-        <input type="number" id="agua" min="0" max="30">
+      <div class="row">
+        <div>
+          <label for="fim">Terminou às <span class="mono" style="font-weight:400;color:var(--apagado)">(se já passou)</span></label>
+          <input type="time" id="fim">
+        </div>
+        <div>
+          <label for="aura">Teve aura?</label>
+          <select id="aura">
+            <option value="N">Não</option>
+            <option value="S">Sim</option>
+          </select>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <label>Possíveis gatilhos</label>
-    <div class="checks">
-      <label><input type="checkbox" name="gatilho" value="Pulou refeição"> Pulou refeição</label>
-      <label><input type="checkbox" name="gatilho" value="Álcool"> Álcool</label>
-      <label><input type="checkbox" name="gatilho" value="Cafeína"> Cafeína</label>
-      <label><input type="checkbox" name="gatilho" value="Estresse"> Estresse</label>
-      <label><input type="checkbox" name="gatilho" value="Menstruação"> Menstruação</label>
-      <label><input type="checkbox" name="gatilho" value="Mudança de clima"> Clima</label>
-      <label><input type="checkbox" name="gatilho" value="Sono ruim"> Sono ruim</label>
-    </div>
+    <section class="grupo">
+      <h2>Como foi</h2>
+      <label for="localizacao">Onde doeu</label>
+      <select id="localizacao">
+        <option>Lado direito</option>
+        <option>Lado esquerdo</option>
+        <option>Os dois lados</option>
+        <option>Testa</option>
+        <option>Nuca</option>
+        <option>Cabeça toda</option>
+      </select>
 
-    <label for="obs">Observações</label>
-    <textarea id="obs" placeholder="Qualquer detalhe diferente do habitual"></textarea>
+      <label id="sintomasLabel">Sintomas</label>
+      <div class="checks" role="group" aria-labelledby="sintomasLabel">
+        <label><input type="checkbox" name="sintoma" value="Náusea/vômito"> Náusea/vômito</label>
+        <label><input type="checkbox" name="sintoma" value="Sensibilidade à luz"> Luz</label>
+        <label><input type="checkbox" name="sintoma" value="Sensibilidade a som"> Som</label>
+        <label><input type="checkbox" name="sintoma" value="Sensibilidade a cheiros"> Cheiros</label>
+        <label><input type="checkbox" name="sintoma" value="Tontura"> Tontura</label>
+      </div>
+    </section>
 
+    <section class="grupo">
+      <h2>Remédio</h2>
+      <div class="row">
+        <div>
+          <label for="remedio">Nome</label>
+          <input type="text" id="remedio" placeholder="Ex.: ibuprofeno" autocapitalize="sentences" enterkeyhint="next">
+        </div>
+        <div>
+          <label for="dose">Dose</label>
+          <input type="text" id="dose" placeholder="Ex.: 400 mg" enterkeyhint="next">
+        </div>
+      </div>
+      <label for="horaRemedio">Tomou às</label>
+      <input type="time" id="horaRemedio">
+      <label for="alivio">Quanto aliviou</label>
+      <div class="alivio-wrap">
+        <input type="range" class="regua alivio" id="alivio" min="0" max="10" value="0">
+        <span class="alivio-num"><output id="alivioVal" for="alivio">0</output> <span id="alivioPalavra">nenhum</span></span>
+      </div>
+    </section>
+
+    <section class="grupo">
+      <h2>Fatores do dia</h2>
+      <div class="row">
+        <div>
+          <label for="sono">Horas de sono na noite anterior</label>
+          <input type="number" id="sono" min="0" max="24" step="0.5" inputmode="decimal">
+        </div>
+        <div>
+          <label for="agua">Copos de água no dia</label>
+          <input type="number" id="agua" min="0" max="30" inputmode="numeric">
+        </div>
+      </div>
+
+      <label id="gatilhosLabel">Possíveis gatilhos</label>
+      <div class="checks" role="group" aria-labelledby="gatilhosLabel">
+        <label><input type="checkbox" name="gatilho" value="Pulou refeição"> Pulou refeição</label>
+        <label><input type="checkbox" name="gatilho" value="Álcool"> Álcool</label>
+        <label><input type="checkbox" name="gatilho" value="Cafeína"> Cafeína</label>
+        <label><input type="checkbox" name="gatilho" value="Estresse"> Estresse</label>
+        <label><input type="checkbox" name="gatilho" value="Menstruação"> Menstruação</label>
+        <label><input type="checkbox" name="gatilho" value="Mudança de clima"> Clima</label>
+        <label><input type="checkbox" name="gatilho" value="Sono ruim"> Sono ruim</label>
+      </div>
+
+      <label for="obs">Observações</label>
+      <textarea id="obs" placeholder="Qualquer detalhe diferente do habitual"></textarea>
+    </section>
+
+    <div class="msg" id="msg" role="status"></div>
     <div class="actions">
       <button type="submit">Salvar crise</button>
-      <button type="button" class="secondary" id="limpar">Limpar formulário</button>
+      <button type="button" class="secondary" id="limpar">Limpar</button>
     </div>
-    <div class="msg" id="msg"></div>
   </form>
 
   <section class="card">
-    <h2>Registros salvos</h2>
+    <h2>Crises salvas</h2>
     <div id="lista"></div>
     <div class="actions">
       <button type="button" class="secondary" id="exportar">Baixar planilha (CSV)</button>
     </div>
+    <div class="msg" id="msgLista" role="status"></div>
   </section>
 </main>
 
 <script>
 (function () {
   var KEY = "cadastro_enxaqueca_v1";
+  var TEMA = "cadastro_enxaqueca_tema";
   var form = document.getElementById("form");
   var msg = document.getElementById("msg");
   var lista = document.getElementById("lista");
@@ -209,29 +369,74 @@
       function (el) { return el.value; }
     );
   }
-  function setChecks(name, values) {
-    form.querySelectorAll('input[name="' + name + '"]').forEach(function (el) {
-      el.checked = values.indexOf(el.value) !== -1;
-    });
-  }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
 
-  function bindRange(id, outId) {
-    var r = document.getElementById(id), o = document.getElementById(outId);
-    r.addEventListener("input", function () { o.textContent = r.value; });
+  // Tema: quarto escuro por padrão, luz acesa quando pedida
+  var luz = document.getElementById("luz");
+  var metaCor = document.querySelector('meta[name="theme-color"]');
+  function aplicarTema(tema) {
+    var claro = tema === "light";
+    if (claro) document.documentElement.setAttribute("data-theme", "light");
+    else document.documentElement.removeAttribute("data-theme");
+    luz.textContent = claro ? "Apagar luz" : "Acender luz";
+    luz.setAttribute("aria-pressed", String(claro));
+    metaCor.setAttribute("content", claro ? "#e9e6ee" : "#1a1824");
   }
-  bindRange("intensidade", "intensidadeVal");
-  bindRange("alivio", "alivioVal");
+  luz.addEventListener("click", function () {
+    var tema = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    aplicarTema(tema);
+    try { localStorage.setItem(TEMA, tema); } catch (e) {}
+  });
+  aplicarTema(document.documentElement.getAttribute("data-theme"));
+
+  // Cor da dor: frio (0) → morno (5) → quente (10)
+  var FRIO = [124, 140, 176], MORNO = [201, 160, 106], QUENTE = [217, 101, 79];
+  function corDor(v) {
+    v = Number(v);
+    var a = v <= 5 ? FRIO : MORNO, b = v <= 5 ? MORNO : QUENTE, t = v <= 5 ? v / 5 : (v - 5) / 5;
+    return a.map(function (x, i) { return Math.round(x + (b[i] - x) * t); });
+  }
+  function rgb(c, alfa) {
+    return alfa == null ? "rgb(" + c.join(",") + ")" : "rgba(" + c.join(",") + "," + alfa + ")";
+  }
+  function palavraDor(v) {
+    v = Number(v);
+    return v === 0 ? "Sem dor" : v <= 3 ? "Leve" : v <= 6 ? "Moderada" : v <= 9 ? "Forte" : "A pior possível";
+  }
+  function palavraAlivio(v) {
+    v = Number(v);
+    return v === 0 ? "nenhum" : v <= 3 ? "pouco" : v <= 6 ? "parcial" : v <= 9 ? "bom" : "total";
+  }
+
+  var intensidade = document.getElementById("intensidade");
+  var alivio = document.getElementById("alivio");
+  function mostrarIntensidade() {
+    var v = intensidade.value, c = corDor(v), palavra = palavraDor(v);
+    var dor = document.getElementById("dor");
+    dor.style.setProperty("--cor", rgb(c));
+    dor.style.setProperty("--brilho", rgb(c, (0.06 + v * 0.03).toFixed(2)));
+    document.getElementById("intensidadeVal").textContent = v;
+    document.getElementById("intensidadePalavra").textContent = palavra;
+    intensidade.setAttribute("aria-valuetext", v + " de 10, " + palavra.toLowerCase());
+  }
+  function mostrarAlivio() {
+    var palavra = palavraAlivio(alivio.value);
+    document.getElementById("alivioVal").textContent = alivio.value;
+    document.getElementById("alivioPalavra").textContent = palavra;
+    alivio.setAttribute("aria-valuetext", alivio.value + " de 10, " + palavra);
+  }
+  intensidade.addEventListener("input", mostrarIntensidade);
+  alivio.addEventListener("input", mostrarAlivio);
 
   function resetForm() {
     form.reset();
     document.getElementById("data").value = new Date().toISOString().slice(0, 10);
-    document.getElementById("intensidadeVal").textContent = document.getElementById("intensidade").value;
-    document.getElementById("alivioVal").textContent = document.getElementById("alivio").value;
+    mostrarIntensidade();
+    mostrarAlivio();
   }
 
   function renderList() {
@@ -239,26 +444,29 @@
       return (b.data + b.inicio).localeCompare(a.data + a.inicio);
     });
     if (!items.length) {
-      lista.innerHTML = '<p class="empty">Nenhum registro ainda.</p>';
+      lista.innerHTML = '<p class="empty">Nenhuma crise salva ainda. Depois de salvar, ela aparece aqui.</p>';
       return;
     }
     lista.innerHTML = items.map(function (it) {
       return (
         '<div class="entry">' +
-          '<div class="entry-head">' +
-            '<strong>' + esc(it.data.split("-").reverse().join("/")) + ' às ' + esc(it.inicio) + '</strong>' +
-            '<button type="button" class="danger" data-id="' + esc(it.id) + '">Excluir</button>' +
+          '<span class="selo" style="background:' + rgb(corDor(it.intensidade)) + '" aria-label="Intensidade ' + esc(it.intensidade) + ' de 10">' + esc(it.intensidade) + '</span>' +
+          '<div class="entry-corpo">' +
+            '<div class="entry-head">' +
+              '<strong class="mono">' + esc(it.data.split("-").reverse().join("/")) + ' · ' + esc(it.inicio) + '</strong>' +
+              '<button type="button" class="danger" data-id="' + esc(it.id) + '">Excluir</button>' +
+            '</div>' +
+            '<div class="entry-meta">' +
+              esc(palavraDor(it.intensidade)) + ' · ' + esc(it.localizacao) +
+              (it.aura === "S" ? ' · com aura' : '') +
+            '</div>' +
+            '<div class="entry-meta">' +
+              (it.remedio ? 'Remédio: ' + esc(it.remedio) + ' ' + esc(it.dose) + (it.horaRemedio ? ' às ' + esc(it.horaRemedio) : '') + ' · alívio ' + esc(it.alivio) + '/10' : 'Sem remédio registrado') +
+            '</div>' +
+            (it.sintomas.length ? '<div class="entry-meta">Sintomas: ' + esc(it.sintomas.join(", ")) + '</div>' : '') +
+            (it.gatilhos.length ? '<div class="entry-meta">Gatilhos: ' + esc(it.gatilhos.join(", ")) + '</div>' : '') +
+            (it.obs ? '<div class="entry-meta">Obs.: ' + esc(it.obs) + '</div>' : '') +
           '</div>' +
-          '<div class="entry-meta">' +
-            'Intensidade ' + esc(it.intensidade) + '/10 · ' + esc(it.localizacao) +
-            (it.aura === "S" ? ' · com aura' : '') +
-          '</div>' +
-          '<div class="entry-meta">' +
-            (it.remedio ? 'Remédio: ' + esc(it.remedio) + ' ' + esc(it.dose) + ' às ' + esc(it.horaRemedio) + ' · alívio ' + esc(it.alivio) + '/10' : 'Sem remédio registrado') +
-          '</div>' +
-          (it.sintomas.length ? '<div class="entry-meta">Sintomas: ' + esc(it.sintomas.join(", ")) + '</div>' : '') +
-          (it.gatilhos.length ? '<div class="entry-meta">Gatilhos: ' + esc(it.gatilhos.join(", ")) + '</div>' : '') +
-          (it.obs ? '<div class="entry-meta">Obs.: ' + esc(it.obs) + '</div>' : '') +
         '</div>'
       );
     }).join("");
@@ -271,14 +479,14 @@
       data: document.getElementById("data").value,
       inicio: document.getElementById("inicio").value,
       fim: document.getElementById("fim").value,
-      intensidade: document.getElementById("intensidade").value,
+      intensidade: intensidade.value,
       aura: document.getElementById("aura").value,
       localizacao: document.getElementById("localizacao").value,
       sintomas: checked("sintoma"),
       remedio: document.getElementById("remedio").value.trim(),
       dose: document.getElementById("dose").value.trim(),
       horaRemedio: document.getElementById("horaRemedio").value,
-      alivio: document.getElementById("alivio").value,
+      alivio: alivio.value,
       sono: document.getElementById("sono").value,
       agua: document.getElementById("agua").value,
       gatilhos: checked("gatilho"),
@@ -303,14 +511,14 @@
   lista.addEventListener("click", function (e) {
     var btn = e.target.closest("button[data-id]");
     if (!btn) return;
-    if (!confirm("Excluir este registro?")) return;
+    if (!confirm("Excluir esta crise?")) return;
     save(load().filter(function (it) { return it.id !== btn.getAttribute("data-id"); }));
     renderList();
   });
 
   document.getElementById("exportar").addEventListener("click", function () {
     var items = load();
-    if (!items.length) { msg.textContent = "Não há registros para exportar."; return; }
+    if (!items.length) { document.getElementById("msgLista").textContent = "Não há crises para exportar."; return; }
     var cols = ["data","inicio","fim","intensidade","aura","localizacao","sintomas","remedio","dose","horaRemedio","alivio","sono","agua","gatilhos","obs"];
     var csv = [cols.join(";")].concat(items.map(function (it) {
       return cols.map(function (c) {
@@ -318,7 +526,7 @@
         return '"' + String(v).replace(/"/g, '""') + '"';
       }).join(";");
     })).join("\n");
-    var blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+    var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "diario_enxaqueca.csv";
@@ -330,6 +538,12 @@
   resetForm();
   renderList();
 })();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
 </script>
 </body>
 </html>
