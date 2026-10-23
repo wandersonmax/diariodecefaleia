@@ -9,8 +9,8 @@ O visual é escuro por padrão, pensado para quem está sensível à luz durante
 - **Intensidade da dor** de 0 a 10, com cor e descrição (leve, moderada, forte…)
 - **Quando:** data, horário de início e de fim, e se teve aura
 - **Como foi:** onde doeu e sintomas (náusea, sensibilidade à luz, ao som, a cheiros, tontura)
-- **Remédio:** nome, dose, horário e quanto aliviou
-- **Fatores do dia:** horas de sono, copos de água e possíveis gatilhos
+- **Remédio:** se tomou, quais (texto livre, opcional), horário e quanto aliviou
+- **Fatores do dia:** horas de sono, litros de água e possíveis gatilhos
 - **Observações** livres
 
 As crises salvas aparecem numa lista, da mais recente para a mais antiga, e podem ser baixadas como planilha (CSV, separada por `;`), que abre no Excel ou no Google Planilhas. Dá para levar a planilha na consulta médica.

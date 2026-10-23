@@ -283,22 +283,21 @@
 
     <section class="grupo">
       <h2>Remédio</h2>
-      <div class="row">
-        <div>
-          <label for="remedio">Nome</label>
-          <input type="text" id="remedio" placeholder="Ex.: ibuprofeno" autocapitalize="sentences" enterkeyhint="next">
+      <label for="tomouRemedio">Tomou remédio?</label>
+      <select id="tomouRemedio">
+        <option value="N">Não</option>
+        <option value="S">Sim</option>
+      </select>
+      <div id="remedioDetalhes" hidden>
+        <label for="remedios">Quais remédios <span class="mono" style="font-weight:400;color:var(--apagado)">(opcional)</span></label>
+        <textarea id="remedios" placeholder="Ex.: ibuprofeno 400 mg" autocapitalize="sentences"></textarea>
+        <label for="horaRemedio">Tomou às</label>
+        <input type="time" id="horaRemedio">
+        <label for="alivio">Quanto aliviou</label>
+        <div class="alivio-wrap">
+          <input type="range" class="regua alivio" id="alivio" min="0" max="10" value="0">
+          <span class="alivio-num"><output id="alivioVal" for="alivio">0</output> <span id="alivioPalavra">nenhum</span></span>
         </div>
-        <div>
-          <label for="dose">Dose</label>
-          <input type="text" id="dose" placeholder="Ex.: 400 mg" enterkeyhint="next">
-        </div>
-      </div>
-      <label for="horaRemedio">Tomou às</label>
-      <input type="time" id="horaRemedio">
-      <label for="alivio">Quanto aliviou</label>
-      <div class="alivio-wrap">
-        <input type="range" class="regua alivio" id="alivio" min="0" max="10" value="0">
-        <span class="alivio-num"><output id="alivioVal" for="alivio">0</output> <span id="alivioPalavra">nenhum</span></span>
       </div>
     </section>
 
@@ -310,8 +309,8 @@
           <input type="number" id="sono" min="0" max="24" step="0.5" inputmode="decimal">
         </div>
         <div>
-          <label for="agua">Copos de água no dia</label>
-          <input type="number" id="agua" min="0" max="30" inputmode="numeric">
+          <label for="aguaLitros">Litros de água no dia</label>
+          <input type="number" id="aguaLitros" min="0" max="10" step="0.1" inputmode="decimal" placeholder="Ex.: 1,5">
         </div>
       </div>
 
@@ -324,6 +323,16 @@
         <label><input type="checkbox" name="gatilho" value="Menstruação"> Menstruação</label>
         <label><input type="checkbox" name="gatilho" value="Mudança de clima"> Clima</label>
         <label><input type="checkbox" name="gatilho" value="Sono ruim"> Sono ruim</label>
+        <label><input type="checkbox" name="gatilho" value="Cólica"> Cólica</label>
+        <label><input type="checkbox" name="gatilho" value="Tempo de tela"> Tempo de tela</label>
+        <label><input type="checkbox" name="gatilho" value="Luz forte ou sol"> Luz forte</label>
+        <label><input type="checkbox" name="gatilho" value="Cheiro forte"> Cheiro forte</label>
+        <label><input type="checkbox" name="gatilho" value="Alimentos (chocolate, queijos, embutidos, adoçantes)"> Alimentos</label>
+        <label><input type="checkbox" name="gatilho" value="Ficou sem cafeína"> Sem cafeína</label>
+        <label><input type="checkbox" name="gatilho" value="Exercício intenso"> Exercício intenso</label>
+        <label><input type="checkbox" name="gatilho" value="Dormiu demais"> Dormiu demais</label>
+        <label><input type="checkbox" name="gatilho" value="Tensão no pescoço/postura"> Tensão no pescoço</label>
+        <label><input type="checkbox" name="gatilho" value="Viagem ou mudança de rotina"> Mudança de rotina</label>
       </div>
 
       <label for="obs">Observações</label>
@@ -432,11 +441,26 @@
   intensidade.addEventListener("input", mostrarIntensidade);
   alivio.addEventListener("input", mostrarAlivio);
 
+  var tomouRemedio = document.getElementById("tomouRemedio");
+  function mostrarRemedio() {
+    document.getElementById("remedioDetalhes").hidden = tomouRemedio.value !== "S";
+  }
+  tomouRemedio.addEventListener("change", mostrarRemedio);
+
   function resetForm() {
     form.reset();
     document.getElementById("data").value = new Date().toISOString().slice(0, 10);
     mostrarIntensidade();
     mostrarAlivio();
+    mostrarRemedio();
+  }
+
+  // Registros antigos guardavam nome e dose separados
+  function textoRemedio(it) {
+    if (it.tomouRemedio === "N" || (!it.tomouRemedio && !it.remedio)) return "Sem remédio";
+    var nomes = it.remedios || [it.remedio, it.dose].filter(Boolean).join(" ");
+    return "Remédio" + (nomes ? ": " + esc(nomes) : "") +
+      (it.horaRemedio ? " às " + esc(it.horaRemedio) : "") + " · alívio " + esc(it.alivio) + "/10";
   }
 
   function renderList() {
@@ -461,7 +485,7 @@
               (it.aura === "S" ? ' · com aura' : '') +
             '</div>' +
             '<div class="entry-meta">' +
-              (it.remedio ? 'Remédio: ' + esc(it.remedio) + ' ' + esc(it.dose) + (it.horaRemedio ? ' às ' + esc(it.horaRemedio) : '') + ' · alívio ' + esc(it.alivio) + '/10' : 'Sem remédio registrado') +
+              textoRemedio(it) +
             '</div>' +
             (it.sintomas.length ? '<div class="entry-meta">Sintomas: ' + esc(it.sintomas.join(", ")) + '</div>' : '') +
             (it.gatilhos.length ? '<div class="entry-meta">Gatilhos: ' + esc(it.gatilhos.join(", ")) + '</div>' : '') +
@@ -483,12 +507,12 @@
       aura: document.getElementById("aura").value,
       localizacao: document.getElementById("localizacao").value,
       sintomas: checked("sintoma"),
-      remedio: document.getElementById("remedio").value.trim(),
-      dose: document.getElementById("dose").value.trim(),
-      horaRemedio: document.getElementById("horaRemedio").value,
-      alivio: alivio.value,
+      tomouRemedio: tomouRemedio.value,
+      remedios: tomouRemedio.value === "S" ? document.getElementById("remedios").value.trim() : "",
+      horaRemedio: tomouRemedio.value === "S" ? document.getElementById("horaRemedio").value : "",
+      alivio: tomouRemedio.value === "S" ? alivio.value : "",
       sono: document.getElementById("sono").value,
-      agua: document.getElementById("agua").value,
+      aguaLitros: document.getElementById("aguaLitros").value,
       gatilhos: checked("gatilho"),
       obs: document.getElementById("obs").value.trim()
     };
@@ -519,7 +543,11 @@
   document.getElementById("exportar").addEventListener("click", function () {
     var items = load();
     if (!items.length) { document.getElementById("msgLista").textContent = "Não há crises para exportar."; return; }
-    var cols = ["data","inicio","fim","intensidade","aura","localizacao","sintomas","remedio","dose","horaRemedio","alivio","sono","agua","gatilhos","obs"];
+    var cols = ["data","inicio","fim","intensidade","aura","localizacao","sintomas","tomouRemedio","remedios","horaRemedio","alivio","sono","aguaLitros","gatilhos","obs"];
+    // Colunas de registros antigos (nome/dose separados, água em copos) só saem se houver dados nelas
+    ["remedio","dose","agua"].forEach(function (c) {
+      if (items.some(function (it) { return it[c]; })) cols.push(c);
+    });
     var csv = [cols.join(";")].concat(items.map(function (it) {
       return cols.map(function (c) {
         var v = Array.isArray(it[c]) ? it[c].join(", ") : (it[c] == null ? "" : it[c]);
