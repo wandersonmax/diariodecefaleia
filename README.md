@@ -4,6 +4,12 @@ Aplicativo web para registrar crises de enxaqueca pelo celular. Funciona offline
 
 O visual é escuro por padrão, pensado para quem está sensível à luz durante uma crise. O botão **Acender luz** troca para um tema claro.
 
+<p align="center">
+  <img src="docs/tela-registro.png" alt="Tela de registro de crise, com a intensidade da dor 7 de 10 em destaque" width="280">
+  &nbsp;&nbsp;
+  <img src="docs/tela-crises.png" alt="Lista de crises salvas, cada uma com um selo colorido pela intensidade" width="280">
+</p>
+
 ## O que dá para registrar
 
 - **Intensidade da dor** de 0 a 10, com cor e descrição (leve, moderada, forte…)
