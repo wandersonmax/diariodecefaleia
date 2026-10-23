@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastro de Enxaqueca</title>
+<style>
+  :root {
+    --bg: #f7f6f3; --card: #ffffff; --text: #1f1f1f; --muted: #6b6b6b;
+    --accent: #3b6e8f; --border: #d9d6cf; --danger: #b33a3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1b1c1e; --card: #26282b; --text: #ebebeb; --muted: #9a9a9a;
+      --accent: #7fb3d1; --border: #3a3d41; --danger: #e07a7a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1b1c1e; --card: #26282b; --text: #ebebeb; --muted: #9a9a9a;
+    --accent: #7fb3d1; --border: #3a3d41; --danger: #e07a7a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.4;
+  }
+  main { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 8px 0 4px; }
+  p.sub { color: var(--muted); margin: 0 0 16px; font-size: 0.9rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 16px;
+  }
+  h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: 0.95rem; }
+  input, select, textarea {
+    width: 100%; padding: 10px; font-size: 16px; font-family: inherit;
+    color: var(--text); background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  textarea { min-height: 64px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 4px; }
+  .checks label { font-weight: 400; margin: 0; display: flex; align-items: center; gap: 6px; }
+  .checks input { width: auto; }
+  .range-wrap { display: flex; align-items: center; gap: 10px; }
+  .range-wrap input { padding: 0; }
+  .range-val { min-width: 2ch; text-align: center; font-weight: 700; font-size: 1.1rem; }
+  button {
+    font-size: 16px; padding: 12px 16px; border-radius: 8px; border: none;
+    background: var(--accent); color: #fff; cursor: pointer; font-weight: 600;
+  }
+  button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 6px 10px; font-size: 14px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .entry { border-top: 1px solid var(--border); padding: 12px 0; }
+  .entry:first-child { border-top: none; padding-top: 0; }
+  .entry-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .entry-meta { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .empty { color: var(--muted); font-style: italic; }
+  .msg { color: var(--accent); font-size: 0.9rem; min-height: 1.2em; margin-top: 8px; }
+  @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Cadastro de crise de enxaqueca</h1>
+  <p class="sub">Preencha logo após a crise ou no fim do dia. Os dados ficam salvos neste navegador.</p>
+
+  <form id="form" class="card" autocomplete="off">
+    <h2>Crise</h2>
+
+    <div class="row">
+      <div>
+        <label for="data">Data</label>
+        <input type="date" id="data" required>
+      </div>
+      <div>
+        <label for="inicio">Horário de início</label>
+        <input type="time" id="inicio" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="fim">Horário de fim (se já terminou)</label>
+        <input type="time" id="fim">
+      </div>
+      <div>
+        <label for="aura">Teve aura?</label>
+        <select id="aura">
+          <option value="N">Não</option>
+          <option value="S">Sim</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="intensidade">Intensidade da dor (0 a 10)</label>
+    <div class="range-wrap">
+      <input type="range" id="intensidade" min="0" max="10" value="5">
+      <span class="range-val" id="intensidadeVal">5</span>
+    </div>
+
+    <label for="localizacao">Onde doeu</label>
+    <select id="localizacao">
+      <option>Lado direito</option>
+      <option>Lado esquerdo</option>
+      <option>Os dois lados</option>
+      <option>Testa</option>
+      <option>Nuca</option>
+      <option>Cabeça toda</option>
+    </select>
+
+    <label>Sintomas</label>
+    <div class="checks">
+      <label><input type="checkbox" name="sintoma" value="Náusea/vômito"> Náusea/vômito</label>
+      <label><input type="checkbox" name="sintoma" value="Sensibilidade à luz"> Luz</label>
+      <label><input type="checkbox" name="sintoma" value="Sensibilidade a som"> Som</label>
+      <label><input type="checkbox" name="sintoma" value="Sensibilidade a cheiros"> Cheiros</label>
+      <label><input type="checkbox" name="sintoma" value="Tontura"> Tontura</label>
+    </div>
+
+    <h2 style="margin-top:20px">Remédio</h2>
+    <div class="row">
+      <div>
+        <label for="remedio">Remédio</label>
+        <input type="text" id="remedio" placeholder="Ex.: ibuprofeno">
+      </div>
+      <div>
+        <label for="dose">Dose</label>
+        <input type="text" id="dose" placeholder="Ex.: 400 mg">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="horaRemedio">Horário que tomou</label>
+        <input type="time" id="horaRemedio">
+      </div>
+      <div>
+        <label for="alivio">Alívio (0 a 10)</label>
+        <div class="range-wrap">
+          <input type="range" id="alivio" min="0" max="10" value="0">
+          <span class="range-val" id="alivioVal">0</span>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:20px">Fatores do dia</h2>
+    <div class="row">
+      <div>
+        <label for="sono">Horas de sono na noite anterior</label>
+        <input type="number" id="sono" min="0" max="24" step="0.5">
+      </div>
+      <div>
+        <label for="agua">Copos de água no dia</label>
+        <input type="number" id="agua" min="0" max="30">
+      </div>
+    </div>
+
+    <label>Possíveis gatilhos</label>
+    <div class="checks">
+      <label><input type="checkbox" name="gatilho" value="Pulou refeição"> Pulou refeição</label>
+      <label><input type="checkbox" name="gatilho" value="Álcool"> Álcool</label>
+      <label><input type="checkbox" name="gatilho" value="Cafeína"> Cafeína</label>
+      <label><input type="checkbox" name="gatilho" value="Estresse"> Estresse</label>
+      <label><input type="checkbox" name="gatilho" value="Menstruação"> Menstruação</label>
+      <label><input type="checkbox" name="gatilho" value="Mudança de clima"> Clima</label>
+      <label><input type="checkbox" name="gatilho" value="Sono ruim"> Sono ruim</label>
+    </div>
+
+    <label for="obs">Observações</label>
+    <textarea id="obs" placeholder="Qualquer detalhe diferente do habitual"></textarea>
+
+    <div class="actions">
+      <button type="submit">Salvar crise</button>
+      <button type="button" class="secondary" id="limpar">Limpar formulário</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <section class="card">
+    <h2>Registros salvos</h2>
+    <div id="lista"></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="exportar">Baixar planilha (CSV)</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var KEY = "cadastro_enxaqueca_v1";
+  var form = document.getElementById("form");
+  var msg = document.getElementById("msg");
+  var lista = document.getElementById("lista");
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch (e) { return []; }
+  }
+  function save(items) {
+    try { localStorage.setItem(KEY, JSON.stringify(items)); return true; }
+    catch (e) { msg.textContent = "Não foi possível salvar neste navegador."; return false; }
+  }
+  function checked(name) {
+    return Array.prototype.map.call(
+      form.querySelectorAll('input[name="' + name + '"]:checked'),
+      function (el) { return el.value; }
+    );
+  }
+  function setChecks(name, values) {
+    form.querySelectorAll('input[name="' + name + '"]').forEach(function (el) {
+      el.checked = values.indexOf(el.value) !== -1;
+    });
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function bindRange(id, outId) {
+    var r = document.getElementById(id), o = document.getElementById(outId);
+    r.addEventListener("input", function () { o.textContent = r.value; });
+  }
+  bindRange("intensidade", "intensidadeVal");
+  bindRange("alivio", "alivioVal");
+
+  function resetForm() {
+    form.reset();
+    document.getElementById("data").value = new Date().toISOString().slice(0, 10);
+    document.getElementById("intensidadeVal").textContent = document.getElementById("intensidade").value;
+    document.getElementById("alivioVal").textContent = document.getElementById("alivio").value;
+  }
+
+  function renderList() {
+    var items = load().slice().sort(function (a, b) {
+      return (b.data + b.inicio).localeCompare(a.data + a.inicio);
+    });
+    if (!items.length) {
+      lista.innerHTML = '<p class="empty">Nenhum registro ainda.</p>';
+      return;
+    }
+    lista.innerHTML = items.map(function (it) {
+      return (
+        '<div class="entry">' +
+          '<div class="entry-head">' +
+            '<strong>' + esc(it.data.split("-").reverse().join("/")) + ' às ' + esc(it.inicio) + '</strong>' +
+            '<button type="button" class="danger" data-id="' + esc(it.id) + '">Excluir</button>' +
+          '</div>' +
+          '<div class="entry-meta">' +
+            'Intensidade ' + esc(it.intensidade) + '/10 · ' + esc(it.localizacao) +
+            (it.aura === "S" ? ' · com aura' : '') +
+          '</div>' +
+          '<div class="entry-meta">' +
+            (it.remedio ? 'Remédio: ' + esc(it.remedio) + ' ' + esc(it.dose) + ' às ' + esc(it.horaRemedio) + ' · alívio ' + esc(it.alivio) + '/10' : 'Sem remédio registrado') +
+          '</div>' +
+          (it.sintomas.length ? '<div class="entry-meta">Sintomas: ' + esc(it.sintomas.join(", ")) + '</div>' : '') +
+          (it.gatilhos.length ? '<div class="entry-meta">Gatilhos: ' + esc(it.gatilhos.join(", ")) + '</div>' : '') +
+          (it.obs ? '<div class="entry-meta">Obs.: ' + esc(it.obs) + '</div>' : '') +
+        '</div>'
+      );
+    }).join("");
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var item = {
+      id: String(Date.now()),
+      data: document.getElementById("data").value,
+      inicio: document.getElementById("inicio").value,
+      fim: document.getElementById("fim").value,
+      intensidade: document.getElementById("intensidade").value,
+      aura: document.getElementById("aura").value,
+      localizacao: document.getElementById("localizacao").value,
+      sintomas: checked("sintoma"),
+      remedio: document.getElementById("remedio").value.trim(),
+      dose: document.getElementById("dose").value.trim(),
+      horaRemedio: document.getElementById("horaRemedio").value,
+      alivio: document.getElementById("alivio").value,
+      sono: document.getElementById("sono").value,
+      agua: document.getElementById("agua").value,
+      gatilhos: checked("gatilho"),
+      obs: document.getElementById("obs").value.trim()
+    };
+    var items = load();
+    items.push(item);
+    if (save(items)) {
+      msg.textContent = "Crise salva.";
+      var keepDate = document.getElementById("data").value;
+      resetForm();
+      document.getElementById("data").value = keepDate;
+      renderList();
+    }
+  });
+
+  document.getElementById("limpar").addEventListener("click", function () {
+    resetForm();
+    msg.textContent = "";
+  });
+
+  lista.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-id]");
+    if (!btn) return;
+    if (!confirm("Excluir este registro?")) return;
+    save(load().filter(function (it) { return it.id !== btn.getAttribute("data-id"); }));
+    renderList();
+  });
+
+  document.getElementById("exportar").addEventListener("click", function () {
+    var items = load();
+    if (!items.length) { msg.textContent = "Não há registros para exportar."; return; }
+    var cols = ["data","inicio","fim","intensidade","aura","localizacao","sintomas","remedio","dose","horaRemedio","alivio","sono","agua","gatilhos","obs"];
+    var csv = [cols.join(";")].concat(items.map(function (it) {
+      return cols.map(function (c) {
+        var v = Array.isArray(it[c]) ? it[c].join(", ") : (it[c] == null ? "" : it[c]);
+        return '"' + String(v).replace(/"/g, '""') + '"';
+      }).join(";");
+    })).join("\n");
+    var blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "diario_enxaqueca.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  resetForm();
+  renderList();
+})();
+</script>
+</body>
+</html>
